@@ -1,7 +1,4 @@
 ### 🩸 DonorLink – Smart Blood Donation Network
-<img width="1885" height="872" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/82deb16f-6046-48d8-9213-a202e63ee5b8" />
-
-
 In many real-world scenarios, during critical blood emergencies, hospitals rely on traditional methods such as contacting other hospitals or blood banks. This process is slow and can reduce a patient’s chances of survival.
 
 To solve this problem, we developed **DonorLink**, a smart hospital-to-donor connectivity platform.
@@ -27,6 +24,10 @@ DonorLink connects hospitals directly with registered donors:
 * The system notifies donors instantly via email
 
 ---
+### Our Prototype
+<img width="1885" height="872" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/82deb16f-6046-48d8-9213-a202e63ee5b8" />
+
+
 
 ### ⚙️ Smart Matching Algorithm
 
