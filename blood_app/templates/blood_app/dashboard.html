@@ -1,0 +1,119 @@
+{% extends 'blood_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4 p-4 bg-white rounded-4 shadow-sm d-flex align-items-center justify-content-between">
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 mb-2">Hospital Portal</span>
+            <h2 class="fw-bold mb-0">Emergency Request Center</h2>
+            <p class="text-muted mb-0">Search and notify compatible donors in real-time.</p>
+        </div>
+        <i class="bi bi-hospital text-primary display-4 ms-3"></i>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow border-0 p-4 bg-white rounded-4 mb-4">
+            <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-filter-circle me-1"></i> Find Donors</h5>
+            <form method="get">
+                {{ filter.form|crispy }}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">Search Donors</button>
+                    <a href="{% url 'hospital_dashboard' %}" class="btn btn-light btn-sm rounded-pill text-muted">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="card shadow border-0 bg-white rounded-4 overflow-hidden mb-5">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Nearby Available Donors</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-uppercase small text-muted">
+                        <tr>
+                            <th class="ps-4">Donor</th>
+                            <th>Blood Group</th>
+                            <th>Proximity</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donor in donors %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ donor.user.username }}</div>
+                                <small class="text-muted">{{ donor.user.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm">
+                                    {{ donor.blood_group }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-primary">{{ donor.distance }} km</div>
+                                <small class="text-muted">{{ donor.location }}</small>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'send_request_email' donor.id %}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+                                    <i class="bi bi-send me-1"></i> Send Request
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center py-5">No donors found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow border-0 bg-white rounded-4 overflow-hidden">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Recent Request Status (Yes/No)</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light small text-muted">
+                        <tr>
+                            <th class="ps-4">Donor Notified</th>
+                            <th>Time Sent</th>
+                            <th>Response Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in hospital_requests %}
+                        <tr>
+                            <td class="ps-4">
+                                <strong>{{ req.donor.user.username }}</strong> 
+                                <span class="badge bg-secondary ms-2">{{ req.donor.blood_group }}</span>
+                            </td>
+                            <td>{{ req.created_at|timesince }} ago</td>
+                            <td>
+                                {% if req.status == 'Accepted' %}
+                                    <span class="badge bg-success py-2 px-3 rounded-pill animate__animated animate__pulse animate__infinite">
+                                        <i class="bi bi-check-circle me-1"></i> YES - Coming Now
+                                    </span>
+                                {% elif req.status == 'Rejected' %}
+                                    <span class="badge bg-light text-danger py-2 px-3 rounded-pill">
+                                        <i class="bi bi-x-circle me-1"></i> NO - Declined
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark py-2 px-3 rounded-pill">
+                                        <i class="bi bi-hourglass-split me-1"></i> Pending Reply
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-4 text-muted">No requests sent yet today.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

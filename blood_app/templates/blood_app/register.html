@@ -1,0 +1,111 @@
+{% extends 'blood_app/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-geo-alt-fill text-danger display-4"></i>
+                    <h2 class="fw-bold mt-2">{% if is_hospital %}Hospital{% else %}Donor{% endif %} Registration</h2>
+                    <p class="text-muted small">We use your GPS to find the closest life-saving matches.</p>
+                </div>
+                
+                <form method="POST" id="regForm">
+                    {% csrf_token %}
+                    
+                    <input type="hidden" name="user_lat" id="user_lat">
+                    <input type="hidden" name="user_lon" id="user_lon">
+
+                    {% if is_hospital %}
+                        {{ form|crispy }}
+                    {% else %}
+                        <div class="mb-3">
+                            <h6 class="text-uppercase fw-bold text-muted small border-bottom pb-2">Account Info</h6>
+                            {{ u_form|crispy }}
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="text-uppercase fw-bold text-muted small border-bottom pb-2">Blood Profile</h6>
+                            {{ p_form|crispy }}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" id="submitBtn" class="btn btn-secondary w-100 rounded-pill mt-3 py-2 fw-bold shadow-sm" disabled>
+                        <span id="btnText">Detecting Location...</span>
+                    </button>
+                    
+                    <div id="gpsStatus" class="text-center mt-2 small text-warning animate__animated animate__pulse animate__infinite">
+                        <i class="bi bi-broadcast"></i> Accessing GPS Services...
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const gpsStatus = document.getElementById('gpsStatus');
+    const latInput = document.getElementById('user_lat');
+    const lonInput = document.getElementById('user_lon');
+
+    // Automatically finds the 'location' or 'address' input field from Crispy Forms
+    const visibleAddressField = document.querySelector('input[name="location"]') || 
+                               document.querySelector('textarea[name="address"]') || 
+                               document.querySelector('input[name="address"]');
+
+    window.onload = function() {
+        if (navigator.geolocation) {
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                // 1. ADD COORDINATES TO HIDDEN FIELDS
+                latInput.value = lat;
+                lonInput.value = lon;
+                
+                // 2. UI UPDATES
+                submitBtn.disabled = false;
+                submitBtn.classList.replace('btn-secondary', 'btn-danger');
+                btnText.innerText = "Complete Registration";
+                
+                // 3. REVERSE GEOCODING (Get Address and Type it into the visible box)
+                if (visibleAddressField) {
+                    visibleAddressField.placeholder = "Detecting address...";
+                    
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // "Types" the full address into your form field automatically
+                            visibleAddressField.value = data.display_name;
+                            
+                            gpsStatus.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> Verified: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+                            gpsStatus.classList.replace('text-warning', 'text-success');
+                        })
+                        .catch(err => {
+                            // Fallback if Geocoding service is slow
+                            visibleAddressField.value = `Lat: ${lat}, Lon: ${lon}`;
+                            gpsStatus.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> Coordinates Locked`;
+                        });
+                }
+                
+            }, function(error) {
+                console.error("GPS Error:", error);
+                btnText.innerText = "Location Required";
+                gpsStatus.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-danger"></i> Please enable GPS to register.';
+                alert("Location access is mandatory for this app. Please allow GPS.");
+            }, options);
+        } else {
+            alert("Your browser does not support geolocation.");
+        }
+    };
+</script>
+{% endblock %}

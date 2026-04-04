@@ -1,0 +1,18 @@
+{% extends 'blood_app/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm p-5 text-center bg-white">
+            <div class="display-1 text-danger mb-3"><i class="bi bi-person-check"></i></div>
+            <h2 class="fw-bold">Your Donor Profile is Active</h2>
+            <p class="text-muted">You are registered as <strong>{{ user.donor.blood_group }}</strong> in <strong>{{ user.donor.location }}</strong>.</p>
+            <hr>
+            <p>Hospitals can now find you in case of an emergency. You will receive an email if someone needs your blood type.</p>
+            <div class="alert alert-info mt-4">
+                <i class="bi bi-info-circle"></i> Keep your contact info updated to save lives.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
