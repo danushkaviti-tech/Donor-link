@@ -1,7 +1,7 @@
 ### 🩸 DonorLink – Smart Blood Donation Network
 In many real-world scenarios, during critical blood emergencies, hospitals rely on traditional methods such as contacting other hospitals or blood banks. This process is slow and can reduce a patient’s chances of survival.
 
-To solve this problem, we developed **DonorLink**, a smart hospital-to-donor connectivity platform.
+To solve this problem, we developed ML Project **DonorLink**, a smart hospital-to-donor connectivity platform.
 
 ---
 
